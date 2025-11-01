@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo '📥 Fetching code from GitHub...'
+                git branch: 'main', url: 'https://github.com/AshokKesanakurthiaws/testdeployment.git'
+            }
+        }
+
+        stage('Build & Verify') {
+            steps {
+                echo '🔧 Checking files and verifying build...'
+                sh 'ls -l'
+                sh 'cat index.html | head -n 5'
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                echo '🚀 Deploying files to /var/www/html...'
+                // Ensure Jenkins user has permission or passwordless sudo
+                sh '''
+                sudo rm -rf /var/www/html/*
+                sudo cp -r * /var/www/html/
+                echo "✅ Deployment complete!"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 CI/CD pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed. Check logs for details.'
+        }
+    }
+}
